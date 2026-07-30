@@ -1,3 +1,7 @@
+/*
+Ee code inte output varunnathu separate file aayittu aane
+*/
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -8,22 +12,14 @@ int main() {
     int line = 1, token = 1, i, isKeyword;
 
     // List of keywords
-    char keywords[6][10] = {
-        "int", "main", "if", "else", "do", "while"
-    };
+    char keywords[10][10] = {"int", "main", "if", "else", "do", "while"};
 
-    input = fopen("input.txt", "r");
-    output = fopen("output.txt", "w");
-
-    if (input == NULL || output == NULL) {
-        printf("Error opening file.\n");
-        return 1;
-    }
+    input = fopen("lexinput.txt", "r");
+    output = fopen("lexoutput.txt", "w");
 
     fprintf(output, "Line No.\tToken No.\tToken Type\tLexeme\n\n");
 
     while ((ch = fgetc(input)) != EOF) {
-
         // Skip spaces and tabs
         if (ch == ' ' || ch == '\t')
             continue;
@@ -35,54 +31,35 @@ int main() {
         }
 
         // Operators
-        if (ch == '+' || ch == '-' || ch == '*' ||
-            ch == '/' || ch == '=') {
-            fprintf(output, "%d\t\t%d\t\tOperator\t%c\n",
-                    line, token++, ch);
+        if (ch == '+' || ch == '-' || ch == '*' || ch == '/') {
+            fprintf(output, "%d\t\t%d\t\tOperator\t%c\n", line, token++, ch);
             continue;
         }
 
         // Special symbols
-        if (ch == ';' || ch == '{' || ch == '}' ||
-            ch == '(' || ch == ')' || ch == '%' ||
-            ch == '!') {
-            fprintf(output, "%d\t\t%d\t\tSpecial\t\t%c\n",
-                    line, token++, ch);
+        if (ch == ';' || ch == '{' || ch == '}' || ch == '(' || ch == ')' || ch == '%' || ch == '!') {
+            fprintf(output, "%d\t\t%d\t\tSpecial\t\t%c\n", line, token++, ch);
             continue;
         }
 
-        // Numbers
+        // Digits
         if (isdigit(ch)) {
-            i = 0;
-            word[i++] = ch;
-
-            while ((ch = fgetc(input)) != EOF && isdigit(ch))
-                word[i++] = ch;
-
-            word[i] = '\0';
-
-            fprintf(output, "%d\t\t%d\t\tNumber\t\t%s\n",
-                    line, token++, word);
-
-            if (ch != EOF)
-                fseek(input, -1, SEEK_CUR);
-
+            fprintf(output, "%d\t\t%d\t\tDigit\t\t%c\n", line, token++, ch);
             continue;
         }
 
-        // Identifiers or Keywords
-        if (isalpha(ch) || ch == '_') {
+        // Identifiers or keywords
+        if (isalpha(ch)) {
             i = 0;
             word[i++] = ch;
 
-            while ((ch = fgetc(input)) != EOF &&
-                   (isalnum(ch) || ch == '_'))
+            while ((ch = fgetc(input)) != EOF && (isalnum(ch) || ch == '_'))
                 word[i++] = ch;
 
             word[i] = '\0';
-
             isKeyword = 0;
 
+            // Check if it's a keyword
             for (int k = 0; k < 6; k++) {
                 if (strcmp(word, keywords[k]) == 0) {
                     isKeyword = 1;
@@ -91,12 +68,11 @@ int main() {
             }
 
             if (isKeyword)
-                fprintf(output, "%d\t\t%d\t\tKeyword\t\t%s\n",
-                        line, token++, word);
+                fprintf(output, "%d\t\t%d\t\tKeyword\t\t%s\n", line, token++, word);
             else
-                fprintf(output, "%d\t\t%d\t\tIdentifier\t%s\n",
-                        line, token++, word);
+                fprintf(output, "%d\t\t%d\t\tIdentifier\t%s\n", line, token++, word);
 
+            // Handle the extra character read
             if (ch != EOF)
                 fseek(input, -1, SEEK_CUR);
         }
@@ -104,7 +80,6 @@ int main() {
 
     fclose(input);
     fclose(output);
-
-    printf("Lexical analysis completed.\n");
+    
     return 0;
 }
