@@ -16,7 +16,7 @@ int words = 0, lines = 0, chars = 0;
 int main() {
     yyin = fopen("input2.txt", "r");
     if (!yyin) {
-        perror("Error opening input2.txt");
+        perror("Err or opening input2.txt");
         return 1;
     }
     yylex();
