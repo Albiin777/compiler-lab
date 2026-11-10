@@ -49,9 +49,11 @@ int main() {
             stack[top] = '\0';
             show("SHIFT id");
         } else {
+            char message[20];
+            sprintf(message, "SHIFT %c", input[pos]);   
             stack[top++] = input[pos++]; // shift + * ( )
             stack[top] = '\0';
-            show("SHIFT symbol");
+            show(message);
         }
         reduce();
     }

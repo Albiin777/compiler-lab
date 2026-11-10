@@ -3,44 +3,58 @@
 
 #define MAX 10
 
-int n;
-int eps[MAX][MAX];          // eps[i][j] = 1 only if q_i --e--> q_j
-int visited[MAX];
+int n;                         // number of states
+int transitions[MAX][MAX];     // epsilon-transition matrix
+int visited[MAX];              // visited states tracker
 
-void epsilon_closure(int s) {
-    visited[s] = 1;
-    for (int t = 0; t < n; t++)
-        if (eps[s][t] && !visited[t])
-            epsilon_closure(t);
+// Recursive DFS function for epsilon closure
+void epsilon_closure(int state) {
+    visited[state] = 1;
+
+    for (int i = 0; i < n; i++) {
+        if (transitions[state][i] && !visited[i]) {
+            epsilon_closure(i);
+        }
+    }
 }
 
 int main() {
     int i, j;
     char entry[10];
 
-    printf("Enter number of states: ");
+    printf("Enter number of states in the NFA: ");
     scanf("%d", &n);
 
-    printf("\nEnter transition matrix.\n");
-    printf("Type 1 for epsilon transition. Anything else (0, 2, a, b...) is ignored.\n\n");
+    printf("\nEnter epsilon-transition matrix (1 for ε-transition, anything else for none)\n");
+    printf("Example: if q0 --ε--> q1, then enter 1 at [q0][q1]\n\n");
+
+    // Print header row for clarity
+    printf("      ");
+    for (i = 0; i < n; i++) printf("q%d ", i);
+    printf("\n");
 
     for (i = 0; i < n; i++) {
         printf("q%d -> ", i);
         for (j = 0; j < n; j++) {
-            scanf("%9s", entry);                    // read as text, never fails
-            eps[i][j] = (strcmp(entry, "1") == 0);  // only "1" means epsilon
+            scanf("%9s", entry);                       // read as text
+            transitions[i][j] = (strcmp(entry, "1") == 0);  // only "1" is epsilon
         }
     }
 
     printf("\n----- Epsilon Closures -----\n");
     for (i = 0; i < n; i++) {
-        for (j = 0; j < n; j++) visited[j] = 0;
+        for (j = 0; j < n; j++)
+            visited[j] = 0;
+
         epsilon_closure(i);
 
-        printf("e-closure(q%d) = { ", i);
-        for (j = 0; j < n; j++)
-            if (visited[j]) printf("q%d ", j);
+        printf("ε-closure(q%d) = { ", i);
+        for (j = 0; j < n; j++) {
+            if (visited[j])
+                printf("q%d ", j);
+        }
         printf("}\n");
     }
+
     return 0;
 }
